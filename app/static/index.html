@@ -52,7 +52,6 @@
       const message = input.value.trim();
       if (!message) return;
       addMessage('user', message);
-      history.push({ role: 'user', content: message });
       input.value = '';
       send.disabled = true;
       status.textContent = 'Thinking';
@@ -61,6 +60,7 @@
         const data = await response.json();
         if (!response.ok) throw new Error(data.detail || 'Request failed');
         addMessage('assistant', data.reply);
+        history.push({ role: 'user', content: message });
         history.push({ role: 'assistant', content: data.reply });
         status.textContent = 'Ready';
       } catch (error) {
