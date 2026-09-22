@@ -1,37 +1,40 @@
-# Azure Chatbot
+# Chat_Bot
 
-A small FastAPI chat application using an Azure OpenAI deployment and a browser-based client.
+Small **FastAPI** chat app backed by **Azure OpenAI**, with a browser UI.
 
-## Local setup
+## Why
 
-1. Create and activate a virtual environment:
+Minimal, owned chat stack: typed request body, short conversation history, Azure deployment config via env — useful as a clean Azure OpenAI + FastAPI reference.
 
-   ```powershell
-   py -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
+## Stack
 
-2. Install dependencies:
+- Python · FastAPI · Uvicorn
+- Azure OpenAI (`openai` Azure client)
+- Static HTML UI (`app/static`)
+- Docker (optional)
 
-   ```powershell
-   pip install -r requirements.txt
-   ```
+## Run
 
-3. Copy `.env.example` to `.env` and set your Azure OpenAI values.
+```bash
+python -m venv .venv
+# Windows: .\.venv\Scripts\Activate.ps1
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env   # set AZURE_OPENAI_* values
+uvicorn app.main:app --reload
+```
 
-4. Start the server:
+Open http://localhost:8000.
 
-   ```powershell
-   uvicorn app.main:app --reload
-   ```
+**API:** `POST /api/chat` · `GET /health`
 
-5. Open http://localhost:8000.
+### Docker
 
-## Docker
-
-```powershell
+```bash
 docker build -t azure-chatbot .
 docker run --env-file .env -p 8000:8000 azure-chatbot
 ```
 
-The API exposes `POST /api/chat` and `GET /health`.
+## Status
+
+Working local/Docker chat client against a configured Azure OpenAI deployment. Not a multi-tenant product.
