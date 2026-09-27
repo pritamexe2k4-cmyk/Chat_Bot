@@ -50,4 +50,4 @@ Never commit `.env` or paste its key into the browser.
 
 ## Next phase
 
-Set the two new secrets locally, test the password gate, then deploy to Azure App Service with Always On and Azure Key Vault.
+The Azure setup is documented in [docs/azure-deployment.md](docs/azure-deployment.md). It uses Azure App Service with Always On, a system-assigned managed identity, and Azure Key Vault references. Do not begin that guide until the local password gate has been tested.
