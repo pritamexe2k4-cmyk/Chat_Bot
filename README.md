@@ -17,12 +17,13 @@ Browser → Node/Express server → OpenAI Responses API
 - Plain browser chat UI
 - `POST /api/chat` server endpoint
 - Recent in-browser conversation context (last 12 messages)
+- Private password login with a signed, HttpOnly seven-day cookie
+- Basic limits for password attempts and chat requests
 - Request-size protection and friendly errors
 - `GET /health` endpoint for Azure
 
 ## Not included yet
 
-- Private login/password gate
 - Azure deployment and Key Vault configuration
 - Permanent chat history or database
 - Streaming responses, uploads, voice, tools, or multi-user accounts
@@ -43,8 +44,10 @@ Never commit `.env` or paste its key into the browser.
 | --- | --- | --- |
 | `OPENAI_API_KEY` | `.env` | Key Vault secret reference |
 | `OPENAI_MODEL` | `.env` | App Service setting |
+| `CHAT_ACCESS_PASSWORD` | `.env` | Key Vault secret reference |
+| `SESSION_SECRET` | `.env` | Key Vault secret reference |
 | `PORT` | `.env` (optional) | supplied by App Service |
 
 ## Next phase
 
-Test this locally with a real API call. Once that is sound, add private authentication, then deploy to Azure App Service with Always On and Azure Key Vault.
+Set the two new secrets locally, test the password gate, then deploy to Azure App Service with Always On and Azure Key Vault.
