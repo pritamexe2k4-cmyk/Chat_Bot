@@ -88,14 +88,14 @@ App Service health checks can remove unhealthy instances from load-balancer rota
 
 ## Code deployment
 
-For the first deployment, use App Service's Deployment Center to connect this GitHub repository:
+This repository deploys through the GitHub Actions workflow at `.github/workflows/main_preetam-chatbot-2026.yml`.
 
-```text
-https://github.com/pritamexe2k4-cmyk/Chat_Bot
-branch: main
-```
+- A push or pull request runs CI only: install, build, and tests. It does **not** deploy to Azure.
+- Test changes locally first, then push a feature branch to GitHub for CI.
+- When a change is approved on `main`, open **Actions** in GitHub, choose **CI and manual Azure deployment - preetam-chatbot-2026**, click **Run workflow**, select `main`, and type `DEPLOY_PRODUCTION` in the confirmation field.
+- Only that confirmed manual run deploys to the `preetam-chatbot-2026` Production App Service.
 
-App Service detects `package.json`, runs `npm install`, and starts the project with the `npm start` command in this repository. Keep the repository free of `.env`; production secrets come only from Key Vault.
+The workflow uses GitHub secret references for Azure sign-in. Keep the repository free of `.env`; production secrets come only from Key Vault.
 
 ## Deployment verification
 

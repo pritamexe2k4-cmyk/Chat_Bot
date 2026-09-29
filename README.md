@@ -44,6 +44,10 @@ Browser → Node/Express server → OpenAI Responses API
 
 Never commit `.env` or paste its key into the browser.
 
+## Deployment control
+
+Git pushes do not change the live Azure app. The GitHub Actions workflow runs checks on pushes and pull requests; deploying to Azure is a separate manual action from the `main` branch. See [docs/azure-deployment.md](docs/azure-deployment.md) for the release steps.
+
 ## Required environment settings
 
 | Name | Local use | Azure production use |
