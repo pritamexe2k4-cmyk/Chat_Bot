@@ -1,5 +1,11 @@
 # My private Azure chatbot — V1
 
+## Product direction
+
+This deployed project is the technical foundation for a future mobile-first wellbeing companion for adults in India. The product and safety decisions for that work are recorded in [docs/phase-0-product-safety-blueprint.md](docs/phase-0-product-safety-blueprint.md).
+
+The current code is still a private general-purpose chatbot. It does **not** provide therapy, diagnosis, medical advice, or crisis intervention until the planned safety work is implemented and reviewed.
+
 ## V1 outcome
 
 A private web chatbot that you can reach through an Azure URL at any time. The browser sends messages to this Node.js server; only the server calls OpenAI. Your API key is never sent to the browser.
