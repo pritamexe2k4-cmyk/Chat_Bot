@@ -1,24 +1,26 @@
-const form = document.querySelector("#chat-form");
-const input = document.querySelector("#message-input");
-const messages = document.querySelector("#messages");
-const sendButton = document.querySelector("#send-button");
-const newChatButton = document.querySelector("#new-chat");
-const status = document.querySelector("#status");
+const app = document.querySelector("#app");
 const loginPanel = document.querySelector("#login-panel");
-const chatApp = document.querySelector("#chat-app");
 const loginForm = document.querySelector("#login-form");
 const passwordInput = document.querySelector("#password-input");
 const loginStatus = document.querySelector("#login-status");
-const logoutButton = document.querySelector("#logout");
+const contextForm = document.querySelector("#context-form");
+const skipContextButton = document.querySelector("#skip-context");
+const chatForm = document.querySelector("#chat-form");
+const input = document.querySelector("#message-input");
+const messages = document.querySelector("#messages");
+const sendButton = document.querySelector("#send-button");
+const status = document.querySelector("#status");
 
+const views = Object.fromEntries([...document.querySelectorAll(".view")].map((view) => [view.id, view]));
+const maxSessionMessages = 12;
 let history = [];
+let context = {};
 
 void loadSession();
 
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  loginStatus.textContent = "Unlocking…";
-
+  loginStatus.textContent = "Unlocking...";
   try {
     const response = await fetch("/api/login", {
       method: "POST",
@@ -27,36 +29,59 @@ loginForm.addEventListener("submit", async (event) => {
     });
     const body = await response.json();
     if (!response.ok) throw new Error(body.error || "Could not sign in.");
-
     passwordInput.value = "";
-    showChat();
+    showApp();
+    showView("context-view");
   } catch (error) {
     loginStatus.textContent = error.message || "Could not sign in.";
   }
 });
 
-form.addEventListener("submit", async (event) => {
+contextForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  context = readContext();
+  showView("home-view");
+});
+
+skipContextButton.addEventListener("click", () => {
+  context = {};
+  contextForm.reset();
+  showView("home-view");
+});
+
+document.querySelectorAll("[data-action]").forEach((button) => {
+  button.addEventListener("click", () => openAction(button.dataset.action));
+});
+document.querySelectorAll("[data-back-home]").forEach((button) => button.addEventListener("click", () => showView("home-view")));
+document.querySelector("#urgent-help").addEventListener("click", () => showView("urgent-view"));
+document.querySelector("#brand-home").addEventListener("click", () => showView("home-view"));
+document.querySelector("#edit-context").addEventListener("click", () => showView("context-view"));
+document.querySelector("#logout").addEventListener("click", logout);
+
+chatForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const content = input.value.trim();
   if (!content) return;
+  if (history.filter((message) => message.role === "user").length >= maxSessionMessages) {
+    status.textContent = "This session has reached its message limit. Start a new private session later.";
+    return;
+  }
 
   const userMessage = { role: "user", content };
   history.push(userMessage);
   addMessage(userMessage);
   input.value = "";
-  setBusy(true, "Thinking…");
+  setBusy(true, "Thinking...");
 
   try {
-    const apiResponse = await fetch("/api/chat", {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ history })
+      body: JSON.stringify({ history, context })
     });
-    const body = await apiResponse.json();
-
-    if (!apiResponse.ok) throw new Error(body.error || "The request failed.");
-
-    const assistantMessage = { role: "assistant", content: body.text };
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error || "The request failed.");
+    const assistantMessage = { role: "assistant", content: body.text || "I am sorry, I could not form a response just now." };
     history.push(assistantMessage);
     addMessage(assistantMessage);
     setBusy(false, "");
@@ -65,40 +90,65 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-newChatButton.addEventListener("click", () => {
-  history = [];
-  messages.innerHTML = "";
-  addMessage({ role: "assistant", content: "New chat started. What is on your mind?" });
-  input.focus();
-});
-
-logoutButton.addEventListener("click", async () => {
-  await fetch("/api/logout", { method: "POST" });
-  history = [];
-  showLogin();
-});
-
 async function loadSession() {
   try {
     const response = await fetch("/api/session");
     const body = await response.json();
-    body.authenticated ? showChat() : showLogin();
+    if (body.authenticated) {
+      showApp();
+      showView("context-view");
+    } else {
+      showLogin();
+    }
   } catch {
     showLogin();
   }
 }
 
-function showChat() {
-  loginPanel.hidden = true;
-  chatApp.hidden = false;
+function readContext() {
+  const formData = new FormData(contextForm);
+  return Object.fromEntries(["focus", "day", "tone", "helpful", "perspective"].flatMap((key) => {
+    const value = formData.get(key);
+    return value ? [[key, value]] : [];
+  }));
+}
+
+function openAction(action) {
+  if (action === "reset") return showView("reset-view");
+  showView("chat-view");
+  if (!history.length) {
+    const opening = action === "write"
+      ? "Write without editing yourself. I will read it with you when you are ready."
+      : "What feels most present for you right now?";
+    addMessage({ role: "assistant", content: opening });
+  }
   input.focus();
 }
 
+function showView(id) {
+  Object.values(views).forEach((view) => { view.hidden = view.id !== id; });
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showApp() {
+  loginPanel.hidden = true;
+  app.hidden = false;
+}
+
 function showLogin() {
-  chatApp.hidden = true;
+  app.hidden = true;
   loginPanel.hidden = false;
   loginStatus.textContent = "";
   passwordInput.focus();
+}
+
+async function logout() {
+  await fetch("/api/logout", { method: "POST" });
+  history = [];
+  context = {};
+  contextForm.reset();
+  messages.replaceChildren();
+  showLogin();
 }
 
 function addMessage({ role, content }) {

@@ -3,45 +3,132 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Chatbot</title>
+    <meta name="theme-color" content="#f6f7f2" />
+    <title>Still - a quiet place to pause</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <main class="shell">
-      <section id="login-panel" class="login-panel" aria-labelledby="login-title">
-        <p class="eyebrow">PRIVATE CHATBOT · V1</p>
-        <h1 id="login-title">Welcome back</h1>
-        <p>Enter your private access password to use this chatbot.</p>
-        <form id="login-form" class="login-form">
+      <section id="login-panel" class="auth-panel" aria-labelledby="login-title">
+        <p class="eyebrow">STILL</p>
+        <h1 id="login-title">A quiet place to pause.</h1>
+        <p>Private AI support for everyday stress and reflection. It is not therapy, medical advice, or emergency care.</p>
+        <form id="login-form" class="stack-form">
           <label for="password-input">Access password</label>
           <input id="password-input" type="password" autocomplete="current-password" required />
-          <button type="submit">Unlock chatbot</button>
+          <button type="submit">Continue</button>
         </form>
+        <p class="minor-note">For adults aged 18+ only.</p>
         <p id="login-status" class="status" role="status"></p>
       </section>
 
-      <section id="chat-app" hidden>
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">PRIVATE CHATBOT · V1</p>
-          <h1>My Chatbot</h1>
-        </div>
-        <button id="new-chat" class="secondary" type="button">New chat</button>
-        <button id="logout" class="secondary" type="button">Log out</button>
-      </header>
+      <section id="app" hidden>
+        <header class="app-header">
+          <button id="brand-home" class="brand" type="button" aria-label="Go to home">STILL</button>
+          <button id="urgent-help" class="urgent-button" type="button">Get urgent help</button>
+        </header>
 
-      <section id="messages" class="messages" aria-live="polite">
-        <article class="message assistant">
-          <p>Hello. What would you like to talk through?</p>
-        </article>
-      </section>
+        <section id="context-view" class="view card" aria-labelledby="context-title" hidden>
+          <p class="eyebrow">A LITTLE CONTEXT</p>
+          <h1 id="context-title">How can I meet you today?</h1>
+          <p class="intro">Everything is optional and stays in this browser session. You can change it later.</p>
+          <form id="context-form" class="context-form">
+            <fieldset>
+              <legend>What would you like help with today?</legend>
+              <div class="choice-grid">
+                <label><input type="radio" name="focus" value="study pressure" /> Study pressure</label>
+                <label><input type="radio" name="focus" value="work stress" /> Work stress</label>
+                <label><input type="radio" name="focus" value="relationships or loneliness" /> Relationships or loneliness</label>
+                <label><input type="radio" name="focus" value="overthinking" /> Overthinking</label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>What does your day look like?</legend>
+              <div class="choice-grid compact">
+                <label><input type="radio" name="day" value="student" /> Student</label>
+                <label><input type="radio" name="day" value="working professional" /> Working professional</label>
+                <label><input type="radio" name="day" value="both or between things" /> Both / between things</label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>How would you like me to speak?</legend>
+              <div class="choice-grid compact">
+                <label><input type="radio" name="tone" value="calm and gentle" /> Calm and gentle</label>
+                <label><input type="radio" name="tone" value="direct and practical" /> Direct and practical</label>
+                <label><input type="radio" name="tone" value="reflective" /> Reflective</label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>What usually helps when things feel heavy?</legend>
+              <div class="choice-grid compact">
+                <label><input type="radio" name="helpful" value="writing it out" /> Writing it out</label>
+                <label><input type="radio" name="helpful" value="a small action plan" /> A small action plan</label>
+                <label><input type="radio" name="helpful" value="grounding" /> Grounding</label>
+                <label><input type="radio" name="helpful" value="talking it through" /> Talking it through</label>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Which perspectives are welcome?</legend>
+              <div class="choice-grid compact">
+                <label><input type="radio" name="perspective" value="psychology and science" /> Psychology and science</label>
+                <label><input type="radio" name="perspective" value="philosophy or life wisdom" /> Philosophy / life wisdom</label>
+                <label><input type="radio" name="perspective" value="faith or spirituality" /> Faith / spirituality</label>
+                <label><input type="radio" name="perspective" value="practical only" /> Keep it practical</label>
+              </div>
+            </fieldset>
+            <button type="submit">Continue</button>
+            <button id="skip-context" class="text-button" type="button">Skip for now</button>
+          </form>
+        </section>
 
-      <form id="chat-form" class="composer">
-        <label class="sr-only" for="message-input">Your message</label>
-        <textarea id="message-input" rows="1" maxlength="4000" placeholder="Write a message…" required></textarea>
-        <button id="send-button" type="submit">Send</button>
-      </form>
-      <p id="status" class="status" role="status"></p>
+        <section id="home-view" class="view" aria-labelledby="home-title" hidden>
+          <p class="eyebrow">PRIVATE WELLBEING COMPANION</p>
+          <h1 id="home-title">What would feel useful right now?</h1>
+          <p class="intro">You do not need to solve everything today. One honest moment is enough.</p>
+          <div class="home-actions">
+            <button class="action-card" data-action="talk" type="button"><strong>Talk it through</strong><span>Make room for what is on your mind.</span></button>
+            <button class="action-card" data-action="reset" type="button"><strong>Quick reset</strong><span>Take one quiet minute to come back to yourself.</span></button>
+            <button class="action-card" data-action="write" type="button"><strong>Write privately</strong><span>Put the uncensored version into words.</span></button>
+          </div>
+          <button id="edit-context" class="text-button" type="button">Change conversation preferences</button>
+        </section>
+
+        <section id="reset-view" class="view card" aria-labelledby="reset-title" hidden>
+          <button class="back-button" data-back-home type="button">Back</button>
+          <p class="eyebrow">ONE MINUTE RESET</p>
+          <h1 id="reset-title">Come back to this moment.</h1>
+          <ol class="reset-steps">
+            <li>Let your shoulders drop once.</li>
+            <li>Name five things you can see.</li>
+            <li>Take one slower breath out than in.</li>
+            <li>Ask: what is the smallest kind thing I can do next?</li>
+          </ol>
+          <button data-action="talk" type="button">Talk it through</button>
+        </section>
+
+        <section id="chat-view" class="view chat-view" aria-labelledby="chat-title" hidden>
+          <div class="chat-heading"><div><p class="eyebrow">TALK IT THROUGH</p><h1 id="chat-title">I am here to listen.</h1></div><button class="text-button" data-back-home type="button">Home</button></div>
+          <p class="boundary">AI support for reflection, not therapy, diagnosis, or emergency care.</p>
+          <section id="messages" class="messages" aria-live="polite"></section>
+          <form id="chat-form" class="composer">
+            <label class="sr-only" for="message-input">What is on your mind?</label>
+            <textarea id="message-input" rows="2" maxlength="1600" placeholder="What is on your mind?" required></textarea>
+            <button id="send-button" type="submit">Send</button>
+          </form>
+          <p id="status" class="status" role="status"></p>
+        </section>
+
+        <section id="urgent-view" class="view urgent-view card" aria-labelledby="urgent-title" hidden>
+          <button class="back-button" data-back-home type="button">Back</button>
+          <p class="eyebrow">URGENT HELP</p>
+          <h1 id="urgent-title">You deserve support beyond this screen.</h1>
+          <p>If you are in immediate danger or might harm yourself or someone else, please call emergency services now.</p>
+          <a class="help-link" href="tel:112"><strong>Call 112</strong><span>Emergency services in India</span></a>
+          <a class="help-link" href="tel:14416"><strong>Call 14416</strong><span>Tele-MANAS mental-health support in India</span></a>
+          <p class="urgent-note">If you can, contact a trusted person nearby and tell them you need company. This app cannot provide emergency intervention.</p>
+        </section>
+
+        <button id="logout" class="logout-button" type="button">Log out</button>
       </section>
     </main>
     <script type="module" src="/app.js"></script>

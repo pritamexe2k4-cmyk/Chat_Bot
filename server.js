@@ -15,7 +15,8 @@ const app = express();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const port = Number(process.env.PORT || 3000);
 const maxMessages = 12;
-const maxMessageLength = 4_000;
+const maxMessageLength = 1_600;
+const maxOutputTokens = 300;
 const sessionCookieName = "chatbot_session";
 const sessionLifetimeSeconds = 60 * 60 * 24 * 7;
 const requestWindows = new Map();
@@ -56,6 +57,7 @@ app.post("/api/chat", requireAuthentication, async (request, response) => {
   }
 
   const history = cleanHistory(request.body?.history);
+  const context = cleanContext(request.body?.context);
 
   if (!history.length || history.at(-1).role !== "user") {
     return response.status(400).json({ error: "Send a user message to start or continue a chat." });
@@ -64,8 +66,9 @@ app.post("/api/chat", requireAuthentication, async (request, response) => {
   try {
     const result = await openai.responses.create({
       model: process.env.OPENAI_MODEL,
-      instructions: "You are a helpful, clear chatbot. Be concise unless the user asks for detail.",
+      instructions: buildInstructions(context),
       input: history,
+      max_output_tokens: maxOutputTokens,
       store: false
     });
 
@@ -98,6 +101,40 @@ function cleanHistory(value) {
       content: typeof message.content === "string" ? message.content.trim().slice(0, maxMessageLength) : ""
     }))
     .filter((message) => message.content.length > 0);
+}
+
+function cleanContext(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+
+  const allowed = {
+    focus: new Set(["study pressure", "work stress", "relationships or loneliness", "overthinking"]),
+    day: new Set(["student", "working professional", "both or between things"]),
+    tone: new Set(["calm and gentle", "direct and practical", "reflective"]),
+    helpful: new Set(["writing it out", "a small action plan", "grounding", "talking it through"]),
+    perspective: new Set(["psychology and science", "philosophy or life wisdom", "faith or spirituality", "practical only"])
+  };
+
+  return Object.fromEntries(
+    Object.entries(allowed).flatMap(([key, choices]) => choices.has(value[key]) ? [[key, value[key]]] : [])
+  );
+}
+
+function buildInstructions(context) {
+  const contextSummary = Object.entries(context)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("; ");
+
+  return `You are Still, a calm wellbeing companion for adults (18+) in India.
+Your role is to support everyday reflection around stress, overwhelm, loneliness, work pressure, or study pressure.
+You are not a therapist, doctor, emergency service, or a substitute for professional or human support.
+
+Be warm, clear, and concise. Ask at most one thoughtful question at a time. Prefer one small practical next step over a long plan.
+Do not diagnose conditions, assess whether someone has a disorder, recommend medication, give medical advice, promise confidentiality, or claim a person will be safe.
+Do not say you are human, watching them, or able to contact emergency services.
+Do not claim to speak for God, know fate, or use faith to pressure or shame someone. If faith or spirituality was selected, frame it as an optional perspective: "Some people find this helpful," and keep the person's agency central.
+If the person describes immediate danger, an intent to harm themselves or someone else, or being unable to stay safe, respond briefly and compassionately. Tell them to call 112 in India for immediate emergency help, call Tele-MANAS on 14416 for mental-health support, and contact a trusted person nearby. Do not continue ordinary coaching in that response.
+
+The user selected the following optional context for this browser session only: ${contextSummary || "none"}.`;
 }
 
 function requireAuthentication(request, response, next) {
