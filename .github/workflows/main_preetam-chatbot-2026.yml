@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: CI and manual Azure deployment - preetam-chatbot-2026
+name: CI only - Azure deployment paused - preetam-chatbot-2026
 
 on:
   push:
@@ -45,7 +45,9 @@ jobs:
           if-no-files-found: error
 
   deploy:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm_deploy == 'DEPLOY_PRODUCTION'
+    # Production deployment is intentionally paused while the product direction is reviewed.
+    # Keep this job for later reactivation; the Azure App Service is not deleted or stopped.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     needs: build
     permissions:
